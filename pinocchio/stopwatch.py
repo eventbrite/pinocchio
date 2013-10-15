@@ -19,7 +19,7 @@ class Stopwatch(Plugin):
         Plugin.__init__(self)
         self.dontrun = {}
         self.times = {}
-        
+
     def add_options(self, parser, env=os.environ):
         Plugin.add_options(self, parser, env)
         parser.add_option("--faster-than",
@@ -42,7 +42,7 @@ class Stopwatch(Plugin):
         handler = logging.StreamHandler(err)
         logger.addHandler(handler)
         logger.setLevel(logging.WARNING)
-        
+
         Plugin.configure(self, options, config)
 
         ### configure stopwatch stuff: file containing times, and
@@ -71,6 +71,9 @@ class Stopwatch(Plugin):
         faster_than = self.faster_than
         if faster_than is not None:
             for (k, v) in self.times.items():
+                k = k[1:-1]
+                if '.' not in k:
+                    continue
                 if v > faster_than:
                     self.dontrun[k] = 1
 
@@ -87,7 +90,7 @@ class Stopwatch(Plugin):
             fp = open(filename, 'w')
             log.warning('WARNING: stopwatch cannot write to "%s"' % (self.stopwatch_file))
             log.warning('WARNING: stopwatch is using "%s" to save times' % (filename,))
-            
+
         dump(self.times, fp)
         fp.close()
 
@@ -95,9 +98,13 @@ class Stopwatch(Plugin):
         """
         Do we want to run this method?  See _should_run.
         """
-        fullname = '%s.%s.%s' % (method.__module__,
-                                 method.im_class.__name__,
-                                 method.__name__)
+        try:
+            fullname = '%s.%s' % (
+                method.__module__,
+                method.im_class.__name__,
+            )
+        except:
+            return False
 
         return self._should_run(fullname)
 
@@ -118,11 +125,11 @@ class Stopwatch(Plugin):
         If we have this test listed as "don't run" because of explicit
         time constraints, don't run it.  Otherwise, indicate no preference.
         """
-        if self.dontrun.has_key(name):
+        if 'name' in self.dontrun:
             return False
 
         return None
-        
+
     def startTest(self, test):
         """
         startTest: start timing.
@@ -140,5 +147,5 @@ class Stopwatch(Plugin):
         testname = str(test)
         if ' ' in testname:
             testname = testname.split(' ')[1]
-            
+
         self.times[testname] = runtime
