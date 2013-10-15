@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 class Stopwatch(Plugin):
     def __init__(self):
         Plugin.__init__(self)
-        self.dontrun = {}
+        self.dorun = set()
         self.times = {}
 
     def add_options(self, parser, env=os.environ):
@@ -74,8 +74,8 @@ class Stopwatch(Plugin):
                 k = k[1:-1]
                 if '.' not in k:
                     continue
-                if v > faster_than:
-                    self.dontrun[k] = 1
+                if v <= faster_than:
+                    self.dorun.add(k)
 
     def finalize(self, result):
         """
@@ -104,7 +104,7 @@ class Stopwatch(Plugin):
                 method.im_class.__name__,
             )
         except:
-            return False
+            fullname = 'unknown'
 
         return self._should_run(fullname)
 
@@ -125,10 +125,10 @@ class Stopwatch(Plugin):
         If we have this test listed as "don't run" because of explicit
         time constraints, don't run it.  Otherwise, indicate no preference.
         """
-        if 'name' in self.dontrun:
-            return False
+        if name in self.dorun:
+            return None
 
-        return None
+        return False
 
     def startTest(self, test):
         """
