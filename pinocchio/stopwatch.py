@@ -119,18 +119,24 @@ class Stopwatch(Plugin):
 
         return self._should_run(fullname)
 
-    ### note, no wantClass, because classes only *contain* tests, but
-    ### aren't tests themselves.
+    def wantClass(self, func):
+        fullname = '%s.%s' % (func.__module__,
+                              func.__name__)
+
+        return self._should_run(classname)
 
     def _should_run(self, name):
         """
         If we have this test listed as "don't run" because of explicit
         time constraints, don't run it.  Otherwise, indicate no preference.
         """
-        if name in self.dorun:
-            return None
+        if self.dorun:
+            if name in self.dorun:
+                return None
 
-        return False
+            return False
+
+        return None
 
     def startTest(self, test):
         """
