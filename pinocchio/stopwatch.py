@@ -123,7 +123,7 @@ class Stopwatch(Plugin):
         fullname = '%s.%s' % (func.__module__,
                               func.__name__)
 
-        return self._should_run(classname)
+        return self._should_run(fullname)
 
     def _should_run(self, name):
         """
