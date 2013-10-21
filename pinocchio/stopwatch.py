@@ -79,21 +79,23 @@ class Stopwatch(Plugin):
                     self.dorun.add(k)
 
     def finalize(self, result):
-        """
-        Save the recorded times, OR dump them into /tmp if the file
-        open fails.
-        """
-        try:
-            fp = open(self.stopwatch_file, 'w')
-        except (IOError, OSError):
-            t = int(time.time())
-            filename = '/tmp/nose-stopwatch-%s.pickle' % (t,)
-            fp = open(filename, 'w')
-            log.warning('WARNING: stopwatch cannot write to "%s"' % (self.stopwatch_file))
-            log.warning('WARNING: stopwatch is using "%s" to save times' % (filename,))
+        """Save the recorded times if not run with faster_than option.
 
-        dump(self.times, fp, -1)
-        fp.close()
+        Dump them into /tmp if the file open fails.
+
+        """
+        if self.faster_than is None:
+            try:
+                fp = open(self.stopwatch_file, 'w')
+            except (IOError, OSError):
+                t = int(time.time())
+                filename = '/tmp/nose-stopwatch-%s.pickle' % (t,)
+                fp = open(filename, 'w')
+                log.warning('WARNING: stopwatch cannot write to "%s"' % (self.stopwatch_file))
+                log.warning('WARNING: stopwatch is using "%s" to save times' % (filename,))
+
+            dump(self.times, fp, -1)
+            fp.close()
 
     def wantMethod(self, method):
         """
