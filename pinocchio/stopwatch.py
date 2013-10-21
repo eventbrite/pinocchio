@@ -71,7 +71,8 @@ class Stopwatch(Plugin):
         faster_than = self.faster_than
         if faster_than is not None:
             for (k, v) in self.times.items():
-                k = k[1:-1]
+                if k[0] == '(' and k[-1] == ')':
+                    k = k[1:-1]
                 if '.' not in k:
                     continue
                 if v <= faster_than:
@@ -99,9 +100,10 @@ class Stopwatch(Plugin):
         Do we want to run this method?  See _should_run.
         """
         try:
-            fullname = '%s.%s' % (
+            fullname = '%s:%s.%s' % (
                 method.__module__,
                 method.im_class.__name__,
+                method.__name__,
             )
         except:
             fullname = 'unknown'
@@ -145,7 +147,13 @@ class Stopwatch(Plugin):
 
         # CTB: HACK!
         testname = str(test)
-        if ' ' in testname:
-            testname = testname.split(' ')[1]
-
-        self.times[testname] = runtime
+        methodname = ''
+        try:
+            methodname, testname = testname.split(' ', 1)
+            if testname[0] == '(' and testname[-1] == ')':
+                testname = testname[1:-1]
+            testname, classname = testname.rsplit('.', 1)
+            testname = testname + ':' + classname + '.' + methodname
+            self.times[testname] = runtime
+        except:
+            pass
