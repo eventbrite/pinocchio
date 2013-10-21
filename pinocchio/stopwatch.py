@@ -62,7 +62,7 @@ class Stopwatch(Plugin):
         calculates which tests should NOT be run.
         """
         try:
-            self.times = load(open(self.stopwatch_file))
+            self.times = load(open(self.stopwatch_file, 'rb'))
         except (IOError, EOFError):
             self.times = {}
 
@@ -92,7 +92,7 @@ class Stopwatch(Plugin):
             log.warning('WARNING: stopwatch cannot write to "%s"' % (self.stopwatch_file))
             log.warning('WARNING: stopwatch is using "%s" to save times' % (filename,))
 
-        dump(self.times, fp)
+        dump(self.times, fp, -1)
         fp.close()
 
     def wantMethod(self, method):
