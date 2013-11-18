@@ -121,12 +121,6 @@ class Stopwatch(Plugin):
 
         return self._should_run(fullname)
 
-    def wantClass(self, func):
-        fullname = '%s.%s' % (func.__module__,
-                              func.__name__)
-
-        return self._should_run(fullname)
-
     def _should_run(self, name):
         """
         If we have this test listed as "don't run" because of explicit
